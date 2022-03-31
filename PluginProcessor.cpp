@@ -142,7 +142,7 @@ bool AudioPluginAudioProcessor::hasEditor() const {
 }
 
 juce::AudioProcessorEditor *AudioPluginAudioProcessor::createEditor() {
-    return new AudioPluginAudioProcessorEditor(*this);
+    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -157,6 +157,34 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
     juce::ignoreUnused(data, sizeInBytes);
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::createParameterLayout() {
+    APVTS::ParameterLayout layout;
+    using namespace juce;
+
+    const auto thresholdRange = NormalisableRange<float>(-60, 12, 1, 1);
+    const auto attackReleaseRange = NormalisableRange<float>(5, 500, 1, 1);
+
+    layout.add(std::make_unique<AudioParameterFloat>(
+            "Threshold", "Threshold", thresholdRange, 0));
+
+    layout.add(std::make_unique<AudioParameterFloat>(
+            "Attack", "Attack", attackReleaseRange, 50));
+
+    layout.add(std::make_unique<AudioParameterFloat>(
+            "Release", "Release", attackReleaseRange, 250));
+
+    constexpr auto choices = std::array<float, 14>{1, 1.5, 2, 3, 4, 5, 6, 7, 8, 10, 15, 20, 50, 100};
+    StringArray sa;
+    std::for_each(choices.begin(), choices.end(), [&sa](auto &choice) {
+        sa.add(String(choice, 1));
+    });
+
+    layout.add(std::make_unique<AudioParameterChoice>(
+            "Ratio", "Ratio", sa, 3));
+
+    return layout;
 }
 
 //==============================================================================
