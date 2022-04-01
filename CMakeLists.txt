@@ -37,6 +37,8 @@ target_compile_definitions(${PLUGIN_NAME}
 
 target_link_libraries(${PLUGIN_NAME}
         PRIVATE
+        juce::juce_core
+        juce::juce_dsp
         juce::juce_audio_utils
         PUBLIC
         juce::juce_recommended_config_flags
