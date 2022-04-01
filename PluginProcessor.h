@@ -58,8 +58,14 @@ public:
     using APVTS = juce::AudioProcessorValueTreeState;
     static APVTS::ParameterLayout createParameterLayout();
     APVTS apvts {*this, nullptr, "Parameters", createParameterLayout()};
-
+    // Parameter cache
+    juce::AudioParameterFloat* attack;
+    juce::AudioParameterFloat* release;
+    juce::AudioParameterFloat* threshold;
+    juce::AudioParameterChoice* ratio;
 private:
+
+    juce::dsp::Compressor<float> compressor;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };
