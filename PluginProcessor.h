@@ -63,6 +63,7 @@ public:
     juce::AudioParameterFloat* release;
     juce::AudioParameterFloat* threshold;
     juce::AudioParameterChoice* ratio;
+    juce::AudioParameterBool* bypassed;
 private:
 
     juce::dsp::Compressor<float> compressor;

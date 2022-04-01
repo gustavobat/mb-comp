@@ -15,10 +15,12 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     release = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter("Release"));
     threshold = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter("Threshold"));
     ratio = dynamic_cast<juce::AudioParameterChoice*>(apvts.getParameter("Ratio"));
+    bypassed = dynamic_cast<juce::AudioParameterBool*>(apvts.getParameter("Bypassed"));
     jassert(attack != nullptr);
     jassert(release != nullptr);
     jassert(threshold != nullptr);
     jassert(ratio != nullptr);
+    jassert(bypassed != nullptr);
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor() {
@@ -136,6 +138,8 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
     auto block = juce::dsp::AudioBlock<float>(buffer);
     auto context = juce::dsp::ProcessContextReplacing<float>(block);
 
+    context.isBypassed = bypassed->get();
+
     compressor.process(context);
 }
 
@@ -184,6 +188,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
 
     layout.add(std::make_unique<AudioParameterChoice>(
             "Ratio", "Ratio", sa, 3));
+
+    layout.add(std::make_unique<AudioParameterBool>("Bypassed", "Bypassed", false));
 
     return layout;
 }
