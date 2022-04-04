@@ -4,14 +4,12 @@
 #include <juce_dsp/juce_dsp.h>
 #include "PluginProcessor.h"
 
-//==============================================================================
 class AudioPluginAudioProcessorEditor : public juce::AudioProcessorEditor {
 public:
     explicit AudioPluginAudioProcessorEditor(AudioPluginAudioProcessor &);
 
     ~AudioPluginAudioProcessorEditor() override;
 
-    //==============================================================================
     void paint(juce::Graphics &) override;
 
     void resized() override;

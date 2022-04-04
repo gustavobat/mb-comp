@@ -1,21 +1,21 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-//==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
-        : AudioProcessor(BusesProperties()
+    : AudioProcessor(BusesProperties()
 #if !JucePlugin_IsMidiEffect
 #if !JucePlugin_IsSynth
-                                 .withInput("Input", juce::AudioChannelSet::stereo(), true)
+                         .withInput("Input", juce::AudioChannelSet::stereo(), true)
 #endif
-                                 .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+                         .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
 ) {
-    compressor.attack = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter("Attack"));
-    compressor.release = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter("Release"));
-    compressor.threshold = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter("Threshold"));
-    compressor.ratio = dynamic_cast<juce::AudioParameterChoice*>(apvts.getParameter("Ratio"));
-    compressor.bypassed = dynamic_cast<juce::AudioParameterBool*>(apvts.getParameter("Bypassed"));
+    compressor.attack = dynamic_cast<juce::AudioParameterFloat *>(apvts.getParameter("Attack"));
+    compressor.release = dynamic_cast<juce::AudioParameterFloat *>(apvts.getParameter("Release"));
+    compressor.threshold = dynamic_cast<juce::AudioParameterFloat *>(apvts.getParameter(
+        "Threshold"));
+    compressor.ratio = dynamic_cast<juce::AudioParameterChoice *>(apvts.getParameter("Ratio"));
+    compressor.bypassed = dynamic_cast<juce::AudioParameterBool *>(apvts.getParameter("Bypassed"));
     jassert(compressor.attack != nullptr);
     jassert(compressor.release != nullptr);
     jassert(compressor.threshold != nullptr);
@@ -25,7 +25,6 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor() = default;
 
-//==============================================================================
 const juce::String AudioPluginAudioProcessor::getName() const {
     return JucePlugin_Name;
 }
@@ -80,7 +79,6 @@ void AudioPluginAudioProcessor::changeProgramName(int index, const juce::String 
     juce::ignoreUnused(index, newName);
 }
 
-//==============================================================================
 void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
     juce::dsp::ProcessSpec spec{};
     spec.sampleRate = sampleRate;
@@ -133,7 +131,6 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
     compressor.process(buffer);
 }
 
-//==============================================================================
 bool AudioPluginAudioProcessor::hasEditor() const {
     return true; // (change this to false if you choose to not supply an editor)
 }
@@ -142,7 +139,6 @@ juce::AudioProcessorEditor *AudioPluginAudioProcessor::createEditor() {
     return new juce::GenericAudioProcessorEditor(*this);
 }
 
-//==============================================================================
 void AudioPluginAudioProcessor::getStateInformation(juce::MemoryBlock &destData) {
     constexpr auto append = true;
     juce::MemoryOutputStream mos(destData, append);
@@ -154,7 +150,8 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
     if (treeState.isValid()) apvts.replaceState(treeState);
 }
 
-juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::createParameterLayout() {
+juce::AudioProcessorValueTreeState::ParameterLayout
+AudioPluginAudioProcessor::createParameterLayout() {
     APVTS::ParameterLayout layout;
     using namespace juce;
 
@@ -162,30 +159,32 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
     const auto attackReleaseRange = NormalisableRange<float>(5, 500, 1, 1);
 
     layout.add(std::make_unique<AudioParameterFloat>(
-            "Threshold", "Threshold", thresholdRange, 0));
+        "Threshold", "Threshold", thresholdRange, 0));
 
     layout.add(std::make_unique<AudioParameterFloat>(
-            "Attack", "Attack", attackReleaseRange, 50));
+        "Attack", "Attack", attackReleaseRange, 50));
 
     layout.add(std::make_unique<AudioParameterFloat>(
-            "Release", "Release", attackReleaseRange, 250));
+        "Release", "Release", attackReleaseRange, 250));
 
-    constexpr auto choices = std::array<float, 14>{1, 1.5, 2, 3, 4, 5, 6, 7, 8, 10, 15, 20, 50, 100};
+    constexpr auto choices = std::array<float, 14>{
+        1, 1.5, 2, 3, 4, 5, 6, 7, 8, 10, 15, 20, 50, 100
+    };
+
     StringArray sa;
     std::for_each(choices.begin(), choices.end(), [&sa](auto &choice) {
         sa.add(String(choice, 1));
     });
 
     layout.add(std::make_unique<AudioParameterChoice>(
-            "Ratio", "Ratio", sa, 3));
+        "Ratio", "Ratio", sa, 3));
 
     layout.add(std::make_unique<AudioParameterBool>("Bypassed", "Bypassed", false));
 
     return layout;
 }
 
-//==============================================================================
-// This creates new instances of the plugin..
+// This creates new instances of the plugin.
 juce::AudioProcessor *JUCE_CALLTYPE createPluginFilter() {
     return new AudioPluginAudioProcessor();
 }
