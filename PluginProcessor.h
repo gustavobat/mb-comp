@@ -4,6 +4,34 @@
 #include <juce_dsp/juce_dsp.h>
 #include <juce_audio_processors/juce_audio_processors.h>
 
+struct CompressorBand {
+    // Parameter cache
+    juce::AudioParameterFloat* attack;
+    juce::AudioParameterFloat* release;
+    juce::AudioParameterFloat* threshold;
+    juce::AudioParameterChoice* ratio;
+    juce::AudioParameterBool* bypassed;
+
+    void prepare(const juce::dsp::ProcessSpec &spec) { compressor.prepare(spec); }
+    void updateCompressorSettings() {
+        compressor.setAttack(attack->get());
+        compressor.setRelease(release->get());
+        compressor.setThreshold(threshold->get());
+        compressor.setRatio(ratio->getCurrentChoiceName().getFloatValue());
+    }
+
+    void process(juce::AudioBuffer<float>& buffer) {
+        auto block = juce::dsp::AudioBlock<float>(buffer);
+        auto context = juce::dsp::ProcessContextReplacing<float>(block);
+
+        context.isBypassed = bypassed->get();
+        compressor.process(context);
+    }
+
+private:
+    juce::dsp::Compressor<float> compressor;
+};
+
 //==============================================================================
 class AudioPluginAudioProcessor : public juce::AudioProcessor {
 public:
@@ -58,15 +86,8 @@ public:
     using APVTS = juce::AudioProcessorValueTreeState;
     static APVTS::ParameterLayout createParameterLayout();
     APVTS apvts {*this, nullptr, "Parameters", createParameterLayout()};
-    // Parameter cache
-    juce::AudioParameterFloat* attack;
-    juce::AudioParameterFloat* release;
-    juce::AudioParameterFloat* threshold;
-    juce::AudioParameterChoice* ratio;
-    juce::AudioParameterBool* bypassed;
 private:
-
-    juce::dsp::Compressor<float> compressor;
+    CompressorBand compressor;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };
