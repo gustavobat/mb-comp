@@ -27,8 +27,8 @@ juce_add_plugin(${PLUGIN_NAME}
 
 target_sources(${PLUGIN_NAME}
         PRIVATE
-        PluginEditor.cpp
-        PluginProcessor.cpp)
+        MBCompEditor.cpp
+        MBCompProcessor.cpp)
 
 target_compile_definitions(${PLUGIN_NAME}
         PUBLIC

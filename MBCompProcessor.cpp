@@ -1,7 +1,6 @@
-#include "PluginProcessor.h"
-#include "PluginEditor.h"
+#include "MBCompProcessor.h"
 
-AudioPluginAudioProcessor::AudioPluginAudioProcessor()
+MBCompProcessor::MBCompProcessor()
     : AudioProcessor(BusesProperties()
 #if !JucePlugin_IsMidiEffect
 #if !JucePlugin_IsSynth
@@ -23,13 +22,13 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     jassert(compressor.bypassed != nullptr);
 }
 
-AudioPluginAudioProcessor::~AudioPluginAudioProcessor() = default;
+MBCompProcessor::~MBCompProcessor() = default;
 
-const juce::String AudioPluginAudioProcessor::getName() const {
+const juce::String MBCompProcessor::getName() const {
     return JucePlugin_Name;
 }
 
-bool AudioPluginAudioProcessor::acceptsMidi() const {
+bool MBCompProcessor::acceptsMidi() const {
 #if JucePlugin_WantsMidiInput
     return true;
 #else
@@ -37,7 +36,7 @@ bool AudioPluginAudioProcessor::acceptsMidi() const {
 #endif
 }
 
-bool AudioPluginAudioProcessor::producesMidi() const {
+bool MBCompProcessor::producesMidi() const {
 #if JucePlugin_ProducesMidiOutput
     return true;
 #else
@@ -45,7 +44,7 @@ bool AudioPluginAudioProcessor::producesMidi() const {
 #endif
 }
 
-bool AudioPluginAudioProcessor::isMidiEffect() const {
+bool MBCompProcessor::isMidiEffect() const {
 #if JucePlugin_IsMidiEffect
     return true;
 #else
@@ -53,33 +52,33 @@ bool AudioPluginAudioProcessor::isMidiEffect() const {
 #endif
 }
 
-double AudioPluginAudioProcessor::getTailLengthSeconds() const {
+double MBCompProcessor::getTailLengthSeconds() const {
     return 0.0;
 }
 
-int AudioPluginAudioProcessor::getNumPrograms() {
+int MBCompProcessor::getNumPrograms() {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
     // so this should be at least 1, even if you're not really implementing programs.
 }
 
-int AudioPluginAudioProcessor::getCurrentProgram() {
+int MBCompProcessor::getCurrentProgram() {
     return 0;
 }
 
-void AudioPluginAudioProcessor::setCurrentProgram(int index) {
+void MBCompProcessor::setCurrentProgram(int index) {
     juce::ignoreUnused(index);
 }
 
-const juce::String AudioPluginAudioProcessor::getProgramName(int index) {
+const juce::String MBCompProcessor::getProgramName(int index) {
     juce::ignoreUnused(index);
     return {};
 }
 
-void AudioPluginAudioProcessor::changeProgramName(int index, const juce::String &newName) {
+void MBCompProcessor::changeProgramName(int index, const juce::String &newName) {
     juce::ignoreUnused(index, newName);
 }
 
-void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
+void MBCompProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
     juce::dsp::ProcessSpec spec{};
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = static_cast<juce::uint32>(samplesPerBlock);
@@ -88,12 +87,12 @@ void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     compressor.prepare(spec);
 }
 
-void AudioPluginAudioProcessor::releaseResources() {
+void MBCompProcessor::releaseResources() {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
 }
 
-bool AudioPluginAudioProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const {
+bool MBCompProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const {
 #if JucePlugin_IsMidiEffect
     juce::ignoreUnused (layouts);
     return true;
@@ -116,8 +115,8 @@ bool AudioPluginAudioProcessor::isBusesLayoutSupported(const BusesLayout &layout
 #endif
 }
 
-void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
-                                             juce::MidiBuffer &midiMessages) {
+void MBCompProcessor::processBlock(juce::AudioBuffer<float> &buffer,
+                                   juce::MidiBuffer &midiMessages) {
     juce::ignoreUnused(midiMessages);
 
     juce::ScopedNoDenormals noDenormals;
@@ -131,27 +130,27 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
     compressor.process(buffer);
 }
 
-bool AudioPluginAudioProcessor::hasEditor() const {
+bool MBCompProcessor::hasEditor() const {
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-juce::AudioProcessorEditor *AudioPluginAudioProcessor::createEditor() {
+juce::AudioProcessorEditor *MBCompProcessor::createEditor() {
     return new juce::GenericAudioProcessorEditor(*this);
 }
 
-void AudioPluginAudioProcessor::getStateInformation(juce::MemoryBlock &destData) {
+void MBCompProcessor::getStateInformation(juce::MemoryBlock &destData) {
     constexpr auto append = true;
     juce::MemoryOutputStream mos(destData, append);
     apvts.state.writeToStream(mos);
 }
 
-void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeInBytes) {
+void MBCompProcessor::setStateInformation(const void *data, int sizeInBytes) {
     auto treeState = juce::ValueTree::readFromData(data, static_cast<size_t>(sizeInBytes));
     if (treeState.isValid()) apvts.replaceState(treeState);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout
-AudioPluginAudioProcessor::createParameterLayout() {
+MBCompProcessor::createParameterLayout() {
     APVTS::ParameterLayout layout;
     using namespace juce;
 
@@ -186,5 +185,5 @@ AudioPluginAudioProcessor::createParameterLayout() {
 
 // This creates new instances of the plugin.
 juce::AudioProcessor *JUCE_CALLTYPE createPluginFilter() {
-    return new AudioPluginAudioProcessor();
+    return new MBCompProcessor();
 }

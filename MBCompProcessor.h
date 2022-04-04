@@ -33,11 +33,11 @@ private:
     juce::dsp::Compressor<float> compressor;
 };
 
-class AudioPluginAudioProcessor : public juce::AudioProcessor {
+class MBCompProcessor : public juce::AudioProcessor {
 public:
-    AudioPluginAudioProcessor();
+    MBCompProcessor();
 
-    ~AudioPluginAudioProcessor() override;
+    ~MBCompProcessor() override;
 
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
 
@@ -85,5 +85,5 @@ public:
 
 private:
     CompressorBand compressor;
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MBCompProcessor)
 };
