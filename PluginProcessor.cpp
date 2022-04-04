@@ -23,8 +23,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     jassert(compressor.bypassed != nullptr);
 }
 
-AudioPluginAudioProcessor::~AudioPluginAudioProcessor() {
-}
+AudioPluginAudioProcessor::~AudioPluginAudioProcessor() = default;
 
 //==============================================================================
 const juce::String AudioPluginAudioProcessor::getName() const {
