@@ -6,11 +6,11 @@
 
 struct CompressorBand {
     // Parameter cache
-    juce::AudioParameterFloat* attack;
-    juce::AudioParameterFloat* release;
-    juce::AudioParameterFloat* threshold;
-    juce::AudioParameterChoice* ratio;
-    juce::AudioParameterBool* bypassed;
+    juce::AudioParameterFloat* attack{};
+    juce::AudioParameterFloat* release{};
+    juce::AudioParameterFloat* threshold{};
+    juce::AudioParameterChoice* ratio{};
+    juce::AudioParameterBool* bypassed{};
 
     void prepare(const juce::dsp::ProcessSpec &spec) { compressor.prepare(spec); }
     void updateCompressorSettings() {
