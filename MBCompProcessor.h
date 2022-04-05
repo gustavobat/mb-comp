@@ -45,6 +45,7 @@ namespace Params {
             {BypassedM,        "Mid Band Bypassed"},
             {BypassedH,        "High Band Bypassed"},
         };
+        return params;
     }
 }
 
