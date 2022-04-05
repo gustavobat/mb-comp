@@ -4,6 +4,44 @@
 #include <juce_dsp/juce_dsp.h>
 #include <juce_audio_processors/juce_audio_processors.h>
 
+namespace Params {
+    enum Names {
+        LM_CrossOverFreq,
+        MH_CrossOverFreq,
+        AttackL,
+        AttackM,
+        AttackH,
+        ReleaseL,
+        ReleaseM,
+        ReleaseH,
+        RatioL,
+        RatioM,
+        RatioH,
+        BypassedL,
+        BypassedM,
+        BypassedH,
+    };
+
+    inline const std::map<Names, juce::String> &GetParamNames() {
+        static std::map<Names, juce::String> params = {
+            {LM_CrossOverFreq, "Low-Mid Crossover Frequency"},
+            {MH_CrossOverFreq, "Mid-High Crossover Frequency"},
+            {AttackL,          "Low Band Threshold"},
+            {AttackM,          "Mid Band Threshold"},
+            {AttackH,          "High Band Threshold"},
+            {ReleaseL,         "Low Band Release"},
+            {ReleaseM,         "Mid Band Release"},
+            {ReleaseH,         "High Band Release"},
+            {RatioL,           "Low Band Ratio"},
+            {RatioM,           "Mid Band Ratio"},
+            {RatioH,           "High Band Ratio"},
+            {BypassedL,        "Low Band Bypassed"},
+            {BypassedM,        "Mid Band Bypassed"},
+            {BypassedH,        "High Band Bypassed"},
+        };
+    }
+}
+
 struct CompressorBand {
     // Parameter cache
     juce::AudioParameterFloat *attack{};
