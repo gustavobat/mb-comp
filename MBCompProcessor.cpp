@@ -9,17 +9,31 @@ MBCompProcessor::MBCompProcessor()
                          .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
 ) {
-    compressor.attack = dynamic_cast<juce::AudioParameterFloat *>(apvts.getParameter("Attack"));
-    compressor.release = dynamic_cast<juce::AudioParameterFloat *>(apvts.getParameter("Release"));
-    compressor.threshold = dynamic_cast<juce::AudioParameterFloat *>(apvts.getParameter(
-        "Threshold"));
-    compressor.ratio = dynamic_cast<juce::AudioParameterChoice *>(apvts.getParameter("Ratio"));
-    compressor.bypassed = dynamic_cast<juce::AudioParameterBool *>(apvts.getParameter("Bypassed"));
-    jassert(compressor.attack != nullptr);
-    jassert(compressor.release != nullptr);
-    jassert(compressor.threshold != nullptr);
-    jassert(compressor.ratio != nullptr);
-    jassert(compressor.bypassed != nullptr);
+
+    using namespace Params;
+    const auto &params = GetParamNames();
+
+    auto get_float_param = [&apvts = this->apvts, &params](auto &param, const auto &paramName) {
+        param = dynamic_cast<juce::AudioParameterFloat *>(apvts.getParameter(params.at(paramName)));
+        jassert(param != nullptr);
+    };
+
+    auto get_choice_param = [&apvts = this->apvts, &params](auto &param, const auto &paramName) {
+        param = dynamic_cast<juce::AudioParameterChoice *>(
+            apvts.getParameter(params.at(paramName)));
+        jassert(param != nullptr);
+    };
+
+    auto get_bool_param = [&apvts = this->apvts, &params](auto &param, const auto &paramName) {
+        param = dynamic_cast<juce::AudioParameterBool *>(apvts.getParameter(params.at(paramName)));
+        jassert(param != nullptr);
+    };
+
+    get_float_param(compressor.attack, Names::AttackL);
+    get_float_param(compressor.release, Names::ReleaseL);
+    get_float_param(compressor.threshold, Names::ThresholdL);
+    get_choice_param(compressor.ratio, Names::RatioL);
+    get_bool_param(compressor.bypassed, Names::BypassedL);
 }
 
 MBCompProcessor::~MBCompProcessor() = default;
@@ -151,34 +165,50 @@ void MBCompProcessor::setStateInformation(const void *data, int sizeInBytes) {
 
 juce::AudioProcessorValueTreeState::ParameterLayout
 MBCompProcessor::createParameterLayout() {
+
     APVTS::ParameterLayout layout;
+
     using namespace juce;
+    using namespace Params;
+    const auto & params = GetParamNames();
+
 
     const auto thresholdRange = NormalisableRange<float>(-60, 12, 1, 1);
     const auto attackReleaseRange = NormalisableRange<float>(5, 500, 1, 1);
 
     layout.add(std::make_unique<AudioParameterFloat>(
-        "Threshold", "Threshold", thresholdRange, 0));
+        params.at(Names::ThresholdL),
+        params.at(Names::ThresholdL),
+        thresholdRange, 0));
 
     layout.add(std::make_unique<AudioParameterFloat>(
-        "Attack", "Attack", attackReleaseRange, 50));
+        params.at(Names::AttackL),
+        params.at(Names::AttackL),
+        attackReleaseRange, 50));
 
     layout.add(std::make_unique<AudioParameterFloat>(
-        "Release", "Release", attackReleaseRange, 250));
+        params.at(Names::ReleaseL),
+        params.at(Names::ReleaseL),
+        attackReleaseRange, 250));
 
     constexpr auto choices = std::array<float, 14>{
         1, 1.5, 2, 3, 4, 5, 6, 7, 8, 10, 15, 20, 50, 100
     };
 
-    StringArray sa;
-    std::for_each(choices.begin(), choices.end(), [&sa](auto &choice) {
-        sa.add(String(choice, 1));
+    StringArray ratio_options;
+    std::for_each(choices.begin(), choices.end(), [&ratio_options](auto &choice) {
+        ratio_options.add(String(choice, 1));
     });
-
+    const auto default_ratio_index = 3;
     layout.add(std::make_unique<AudioParameterChoice>(
-        "Ratio", "Ratio", sa, 3));
+        params.at(Names::RatioL),
+        params.at(Names::RatioL),
+        ratio_options, default_ratio_index));
 
-    layout.add(std::make_unique<AudioParameterBool>("Bypassed", "Bypassed", false));
+    layout.add(std::make_unique<AudioParameterBool>(
+        params.at(Names::BypassedL),
+        params.at(Names::BypassedL),
+        false));
 
     return layout;
 }
